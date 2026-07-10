@@ -84,13 +84,14 @@
                 const selectedEntry = ref(null);
 
                 onMounted(async () => {
-                    // In real deployment, you fetch('dictionary.json')
-                    // Providing fallback mock data for testing immediately:
-                    dictionary.value = [
-                        { name: "Place into", type: "Command", syntax: "Place the text [Data] into the text field named [Target].", livecode_equivalent: "put [Data] into field [Target]", description: "Moves strings or numerical data into a designated user interface text field.", example: 'Place the text "Hello World" into the text field named "OutputField".' },
-                        { name: "Move to coordinates", type: "Command", syntax: "Move the [Object Type] named [Name] to the coordinates [X], [Y].", livecode_equivalent: "set the loc of [Object Type] [Name] to [X],[Y]", description: "Changes the physical screen location of a specified user interface element.", example: 'Move the button named "Submit" to the coordinates 100, 200.' }
-                    ];
-                    if(dictionary.value.length > 0) selectedEntry.value = dictionary.value[0];
+                    try {
+                        // This fixes it: actively pulling your real dictionary data!
+                        const response = await fetch('dictionary.json');
+                        dictionary.value = await response.json();
+                        if(dictionary.value.length > 0) selectedEntry.value = dictionary.value[0];
+                    } catch (error) {
+                        console.error("Error loading dictionary data:", error);
+                    }
                 });
 
                 const filteredDictionary = computed(() => {
@@ -104,5 +105,6 @@
             }
         }).mount('#app');
     </script>
+
 </body>
 </html>
