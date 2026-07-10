@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Place into",
+    "type": "Command",
+    "syntax": "Place the text [Data] into the text field named [Target].",
+    "livecode_equivalent": "put [Data] into field [Target]",
+    "description": "Moves strings or numerical data into a designated user interface text field.",
+    "example": "Place the text \"Hello World\" into the text field named \"OutputField\"."
+  },
+  {
+    "name": "Move to coordinates",
+    "type": "Command",
+    "syntax": "Move the [Object Type] named [Name] to the coordinates [X], [Y].",
+    "livecode_equivalent": "set the loc of [Object Type] [Name] to [X],[Y]",
+    "description": "Changes the physical screen location of a specified user interface element.",
+    "example": "Move the button named \"Submit\" to the coordinates 100, 200."
+  }
+]
