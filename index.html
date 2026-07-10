@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Strict English Dictionary</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans h-screen flex flex-col">
+
+    <header class="bg-slate-800 text-white p-4 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold tracking-wide">Strict English for LiveCode</h1>
+        <span class="text-xs bg-slate-700 px-3 py-1 rounded text-slate-300">Language Spec v1.0</span>
+    </header>
+
+    <div id="app" class="flex flex-1 overflow-hidden">
+        <aside class="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
+            <div class="p-4 border-b border-gray-100">
+                <input v-model="searchQuery" type="text" placeholder="Search dictionary..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+            </div>
+            
+            <div class="flex-1 overflow-y-auto">
+                <div v-for="entry in filteredDictionary" :key="entry.name"
+                     @click="selectedEntry = entry"
+                     :class="['p-3 border-b border-gray-50 cursor-pointer hover:bg-slate-50 transition-colors flex justify-between items-center', selectedEntry && selectedEntry.name === entry.name ? 'bg-blue-50 border-l-4 border-l-blue-600 font-medium' : '']">
+                    <span class="text-sm truncate pr-2">{{ entry.name }}</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider"
+                          :class="entry.type === 'Command' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'">
+                        {{ entry.type }}
+                    </span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto bg-slate-50">
+            <div v-if="selectedEntry" class="max-w-3xl bg-white p-8 rounded-lg shadow-sm border border-gray-200">
+                <div class="flex items-center gap-3 mb-4">
+                    <h2 class="text-3xl font-bold text-slate-800">{{ selectedEntry.name }}</h2>
+                    <span class="text-xs px-2.5 py-1 rounded-full bg-slate-100 font-semibold text-slate-600 uppercase">{{ selectedEntry.type }}</span>
+                </div>
+                
+                <hr class="border-gray-100 my-4" />
+
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Strict English Syntax</h3>
+                    <div class="bg-slate-900 text-emerald-400 font-mono p-4 rounded-md text-sm border-l-4 border-emerald-500 shadow-inner">
+                        {{ selectedEntry.syntax }}
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Native LiveCode Translation</h3>
+                    <div class="bg-gray-100 text-gray-700 font-mono p-3 rounded-md text-xs">
+                        {{ selectedEntry.livecode_equivalent }}
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Description</h3>
+                    <p class="text-slate-600 leading-relaxed text-sm">{{ selectedEntry.description }}</p>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Usage Example</h3>
+                    <div class="bg-blue-900 text-blue-100 font-mono p-4 rounded-md text-sm">
+                        {{ selectedEntry.example }}
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="h-full flex flex-col items-center justify-center text-slate-400">
+                <p class="text-lg">Select a term from the sidebar to view the Strict English specification.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        createApp({
+            setup() {
+                const searchQuery = ref('');
+                const dictionary = ref([]);
+                const selectedEntry = ref(null);
+
+                onMounted(async () => {
+                    // In real deployment, you fetch('dictionary.json')
+                    // Providing fallback mock data for testing immediately:
+                    dictionary.value = [
+                        { name: "Place into", type: "Command", syntax: "Place the text [Data] into the text field named [Target].", livecode_equivalent: "put [Data] into field [Target]", description: "Moves strings or numerical data into a designated user interface text field.", example: 'Place the text "Hello World" into the text field named "OutputField".' },
+                        { name: "Move to coordinates", type: "Command", syntax: "Move the [Object Type] named [Name] to the coordinates [X], [Y].", livecode_equivalent: "set the loc of [Object Type] [Name] to [X],[Y]", description: "Changes the physical screen location of a specified user interface element.", example: 'Move the button named "Submit" to the coordinates 100, 200.' }
+                    ];
+                    if(dictionary.value.length > 0) selectedEntry.value = dictionary.value[0];
+                });
+
+                const filteredDictionary = computed(() => {
+                    return dictionary.value.filter(item => 
+                        item.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                        item.syntax.toLowerCase().includes(searchQuery.value.toLowerCase())
+                    );
+                });
+
+                return { searchQuery, selectedEntry, filteredDictionary };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
