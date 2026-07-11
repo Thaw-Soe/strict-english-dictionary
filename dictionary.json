@@ -1,162 +1,137 @@
-[
-  {
-    "name": "Store in variable",
-    "type": "Command",
-    "syntax": "Store the value [Value] into the variable named [VariableName].",
-    "livecode_equivalent": "put [Value] into [VariableName]",
-    "description": "Creates a new variable or overwrites an existing variable with a specified piece of data.",
-    "example": "Store the value 42 into the variable named \"TotalScore\"."
-  },
-  {
-    "name": "Append to variable",
-    "type": "Command",
-    "syntax": "Append the text [Value] to the end of the variable named [VariableName].",
-    "livecode_equivalent": "put [Value] after [VariableName]",
-    "description": "Adds a string or value directly to the conclusion of an existing variable's contents without clearing it.",
-    "example": "Append the text \", thank you\" to the end of the variable named \"UserGreeting\"."
-  },
-  {
-    "name": "Prepend to variable",
-    "type": "Command",
-    "syntax": "Prepend the text [Value] to the beginning of the variable named [VariableName].",
-    "livecode_equivalent": "put [Value] before [VariableName]",
-    "description": "Inserts a string or value directly at the very start of an existing variable's contents.",
-    "example": "Prepend the text \"Error: \" to the beginning of the variable named \"LogMessage\"."
-  },
-  {
-    "name": "Calculate addition",
-    "type": "Command",
-    "syntax": "Add the number [Value] to the variable named [VariableName].",
-    "livecode_equivalent": "add [Value] to [VariableName]",
-    "description": "Performs basic mathematical addition, increasing the value stored within a target numeric variable.",
-    "example": "Add the number 5 to the variable named \"ItemCount\"."
-  },
-  {
-    "name": "Calculate subtraction",
-    "type": "Command",
-    "syntax": "Subtract the number [Value] from the variable named [VariableName].",
-    "livecode_equivalent": "subtract [Value] from [VariableName]",
-    "description": "Performs basic mathematical subtraction, decreasing the value stored within a target numeric variable.",
-    "example": "Subtract the number 10 from the variable named \"RemainingBalance\"."
-  },
-  {
-    "name": "Calculate multiplication",
-    "type": "Command",
-    "syntax": "Multiply the variable named [VariableName] by the number [Value].",
-    "livecode_equivalent": "multiply [VariableName] by [Value]",
-    "description": "Multiplies the current numeric contents of a variable by a specified factor.",
-    "example": "Multiply the variable named \"TaxAmount\" by the number 1.2."
-  },
-  {
-    "name": "Calculate division",
-    "type": "Command",
-    "syntax": "Divide the variable named [VariableName] by the number [Value].",
-    "livecode_equivalent": "divide [VariableName] by [Value]",
-    "description": "Divides the current numeric contents of a variable by a specified divisor.",
-    "example": "Divide the variable named \"TotalCakeWeight\" by the number 4."
-  },
-  {
-    "name": "Extract text chunk",
-    "type": "Function",
-    "syntax": "Extract words [Start] through [End] of the text source [Source].",
-    "livecode_equivalent": "word [Start] to [End] of [Source]",
-    "description": "Isolates and returns a specific range of space-separated words out of a larger block of text.",
-    "example": "Extract words 2 through 4 of the text source \"The quick brown fox jumps\"."
-  },
-  {
-    "name": "Count items",
-    "type": "Function",
-    "syntax": "Count the total number of items within the text source [Source].",
-    "livecode_equivalent": "the number of items in [Source]",
-    "description": "Returns a numeric count of comma-separated components present within a given text string.",
-    "example": "Count the total number of items within the text source \"Flour, Sugar, Eggs, Butter\"."
-  },
-  {
-    "name": "Clear memory container",
-    "type": "Command",
-    "syntax": "Delete the variable named [VariableName].",
-    "livecode_equivalent": "delete variable [VariableName]",
-    "description": "Completely purges a variable from memory, freeing up system resources.",
-    "example": "Delete the variable named \"TemporaryToken\"."
-  },
-  {
-    "name": "Create interface element",
-    "type": "Command",
-    "syntax": "Create a new [ElementType] named [Name] on the current card.",
-    "livecode_equivalent": "create [ElementType] [Name]",
-    "description": "Spawns a brand new user interface component (such as a button, field, or image) onto the active screen layout.",
-    "example": "Create a new button named \"CalculateTotal\" on the current card."
-  },
-  {
-    "name": "Modify background color",
-    "type": "Command",
-    "syntax": "Change the background color of the [ElementType] named [Name] to [Color].",
-    "livecode_equivalent": "set the backgroundColor of [ElementType] [Name] to [Color]",
-    "description": "Alters the interior solid fill color of a designated user interface object.",
-    "example": "Change the background color of the field named \"DisplayArea\" to \"blue\"."
-  },
-  {
-    "name": "Modify text color",
-    "type": "Command",
-    "syntax": "Change the text color of the [ElementType] named [Name] to [Color].",
-    "livecode_equivalent": "set the textColor of [ElementType] [Name] to [Color]",
-    "description": "Changes the display color of any text rendered inside or on top of the specified control element.",
-    "example": "Change the text color of the button named \"SubmitButton\" to \"white\"."
-  },
-  {
-    "name": "Relocate object",
-    "type": "Command",
-    "syntax": "Move the [ElementType] named [Name] to the coordinates [X], [Y].",
-    "livecode_equivalent": "set the loc of [ElementType] [Name] to [X],[Y]",
-    "description": "Repositions the physical center point of a user interface object to precise pixel coordinates on the screen.",
-    "example": "Move the image named \"LogoView\" to the coordinates 150, 300."
-  },
-  {
-    "name": "Alter visibility state",
-    "type": "Command",
-    "syntax": "Set the visibility of the [ElementType] named [Name] to [True/False].",
-    "livecode_equivalent": "set the visible of [ElementType] [Name] to [true/false]",
-    "description": "Controls whether an object is rendered visibly on screen or hidden entirely from the user's view.",
-    "example": "Set the visibility of the field named \"ErrorMessage\" to false."
-  },
-  {
-    "name": "Adjust text size",
-    "type": "Command",
-    "syntax": "Change the text size of the [ElementType] named [Name] to [FontSize] points.",
-    "livecode_equivalent": "set the textSize of [ElementType] [Name] to [FontSize]",
-    "description": "Dynamically scales the typographic size of text characters within an interface element.",
-    "example": "Change the text size of the field named \"MainHeader\" to 24 points."
-  },
-  {
-    "name": "Go to another screen",
-    "type": "Command",
-    "syntax": "Navigate to the card named [CardName].",
-    "livecode_equivalent": "go to card [CardName]",
-    "description": "Swaps the current screen view out to display a completely different design template or workflow canvas within the application.",
-    "example": "Navigate to the card named \"SettingsMenu\"."
-  },
-  {
-    "name": "Disable interface control",
-    "type": "Command",
-    "syntax": "Deactivate the [ElementType] named [Name] to prevent user interaction.",
-    "livecode_equivalent": "set the disabled of [ElementType] [Name] to true",
-    "description": "Grays out an element and locks it so that mouse clicks, taps, or typing actions are completely ignored.",
-    "example": "Deactivate the button named \"PayNowButton\" to prevent user interaction."
-  },
-  {
-    "name": "Enable interface control",
-    "type": "Command",
-    "syntax": "Activate the [ElementType] named [Name] to allow user interaction.",
-    "livecode_equivalent": "set the disabled of [ElementType] [Name] to false",
-    "description": "Restores full interactive functionality to a previously locked or deactivated control element.",
-    "example": "Activate the button named \"PayNowButton\" to allow user interaction."
-  },
-  {
-    "name": "Retrieve screen width",
-    "type": "Function",
-    "syntax": "Obtain the pixel width of the current card.",
-    "livecode_equivalent": "the width of this card",
-    "description": "Queries the layout engine to find the exact horizontal measurement of the active viewport.",
-    "example": "Obtain the pixel width of the current card."
-  }
-]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strict English Dictionary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .sidebar-item:hover { background-color: #2d3748; }
+        .sidebar-item.active { background-color: #4a5568; border-left: 4px solid #38bdf8; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans flex h-screen overflow-hidden">
+
+    <aside class="w-80 bg-gray-800 flex flex-col border-r border-gray-700">
+        <div class="p-4 border-b border-gray-700">
+            <h1 class="text-xl font-bold text-sky-400">Strict English Spec</h1>
+            <p class="text-xs text-gray-400 mt-1">Live Database Documentation</p>
+        </div>
+        <nav id="keyword-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+            <div class="text-center text-gray-500 py-8">Connecting to database...</div>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden bg-gray-950">
+        <div id="details-view" class="flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full flex flex-col justify-center items-center text-center">
+            <div class="text-gray-500">
+                <svg class="w-16 h-16 mx-auto mb-4 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <p class="text-lg font-medium">Select a keyword from the sidebar dictionary to view its strict syntax specification.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 1. Hook up the backend engine to your cloud project
+        const SUPABASE_URL = 'https://bkhvrqopgxjvztwjoalr.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJraHZycW9wZ3hqdnp0d2pvYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTYxODQsImV4cCI6MjA5OTM3MjE4NH0.2Dmc3PxZouIbI85IzzRbb2jn_yJPbtZUb9jYt2UuigE';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let dictionaryData = [];
+
+        // 2. Fetch all keywords from Supabase automatically on startup
+        async function loadDictionary() {
+            try {
+                const { data, error } = await supabase
+                    .from('dictionary')
+                    .select('keyword, strict_name')
+                    .order('keyword', { ascending: true });
+
+                if (error) throw error;
+                
+                dictionaryData = data;
+                renderSidebar();
+            } catch (err) {
+                console.error("Database connection error:", err);
+                document.getElementById('keyword-list').innerHTML = `
+                    <div class="text-red-400 p-4 text-xs text-center">
+                        Failed to connect to cloud database.<br>${err.message}
+                    </div>`;
+            }
+        }
+
+        // 3. Render the sidebar index list dynamically
+        function renderSidebar() {
+            const listContainer = document.getElementById('keyword-list');
+            if (dictionaryData.length === 0) {
+                listContainer.innerHTML = '<div class="text-gray-500 text-center py-8 text-sm">Database table is empty. Add entries via Airtable to see them here!</div>';
+                return;
+            }
+
+            listContainer.innerHTML = dictionaryData.map(item => `
+                <button onclick="displayDetails('${item.keyword}', this)" 
+                        class="sidebar-item w-full text-left px-3 py-2 rounded text-sm font-medium transition duration-150 flex flex-col gap-0.5">
+                    <span class="text-gray-200 truncate font-mono">${item.keyword}</span>
+                    <span class="text-xs text-gray-400 font-sans truncate">${item.strict_name || 'No title defined'}</span>
+                </button>
+            `).join('');
+        }
+
+        // 4. Fetch precise record definitions instantly on-demand when clicked
+        async function displayDetails(keyword, element) {
+            // Update active state class inside sidebar menu selection
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            const detailsContainer = document.getElementById('details-view');
+            detailsContainer.innerHTML = '<div class="text-gray-400 animate-pulse text-center">Querying database engine...</div>';
+
+            try {
+                const { data, error } = await supabase
+                    .from('dictionary')
+                    .select('*')
+                    .eq('keyword', keyword)
+                    .single();
+
+                if (error) throw error;
+
+                // Render out pristine custom dictionary components visually
+                detailsContainer.className = "flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full opacity-100 transition-opacity duration-200 text-left";
+                detailsContainer.innerHTML = `
+                    <div class="mb-6">
+                        <span class="bg-sky-500/10 text-sky-400 text-xs font-semibold tracking-wider uppercase px-2.5 py-1 rounded border border-sky-500/20">Specification Definition</span>
+                        <h2 class="text-3xl font-bold mt-3 text-white font-mono border-b border-gray-800 pb-4">${data.keyword}</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="bg-gray-900 p-5 rounded-lg border border-gray-800">
+                            <h3 class="text-xs font-bold text-gray-400 tracking-wide uppercase">Strict Formulation Name</h3>
+                            <p class="text-lg font-semibold text-sky-400 mt-1">${data.strict_name || 'N/A'}</p>
+                        </div>
+                        <div class="bg-gray-900 p-5 rounded-lg border border-gray-800">
+                            <h3 class="text-xs font-bold text-gray-400 tracking-wide uppercase">Abstract Scope Behavior</h3>
+                            <p class="text-sm text-gray-300 mt-2 leading-relaxed">${data.description || 'No descriptive context provided.'}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-gray-900 p-6 rounded-lg border border-gray-800">
+                        <h3 class="text-xs font-bold text-gray-400 tracking-wide uppercase mb-2">Grammar / Syntax Framework Blueprint</h3>
+                        <pre class="bg-gray-950 p-4 rounded border border-gray-800 text-amber-400 font-mono text-sm overflow-x-auto whitespace-pre-wrap">${data.syntax || 'No explicit grammar rules applied.'}</pre>
+                    </div>
+
+                    <div class="mt-6 bg-gray-900 p-6 rounded-lg border border-gray-800">
+                        <h3 class="text-xs font-bold text-gray-400 tracking-wide uppercase mb-2">Live Applied Example Context</h3>
+                        <pre class="bg-gray-950 p-4 rounded border border-gray-800 text-emerald-400 font-mono text-sm overflow-x-auto whitespace-pre-wrap">${data.example || 'No execution sample documented.'}</pre>
+                    </div>
+                `;
+            } catch (err) {
+                detailsContainer.innerHTML = `<div class="text-red-400 text-center">Error parsing data record.<br>${err.message}</div>`;
+            }
+        }
+
+        // Trigger startup engine lookup hooks
+        window.onload = loadDictionary;
+    </script>
+</body>
+</html>
