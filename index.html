@@ -13,6 +13,7 @@
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans flex h-screen overflow-hidden">
 
+    <!-- LEFT SIDEBAR -->
     <aside class="w-80 bg-gray-800 flex flex-col border-r border-gray-700">
         <div class="p-4 border-b border-gray-700">
             <h1 class="text-xl font-bold text-sky-400">Strict English Spec</h1>
@@ -23,6 +24,7 @@
         </nav>
     </aside>
 
+    <!-- RIGHT CONTENT AREA -->
     <main class="flex-1 flex flex-col overflow-hidden bg-gray-950">
         <div id="details-view" class="flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full flex flex-col justify-center items-center text-center">
             <div class="text-gray-500">
@@ -33,17 +35,17 @@
     </main>
 
     <script>
-        // 1. Hook up the backend engine to your cloud project
         const SUPABASE_URL = 'https://bkhvrqopgxjvztwjoalr.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJraHZycW9wZ3hqdnp0d2pvYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTYxODQsImV4cCI6MjA5OTM3MjE4NH0.2Dmc3PxZouIbI85IzzRbb2jn_yJPbtZUb9jYt2UuigE';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJraHZycW9wZ3hqdnp0d2pvYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTYxODQsImV4cCI6MjA5OTM3MjE4NH0.2Dmc3PxZouIbI85IzzRbb2jn_yJPbtZUb9jYt2UuigE'; // Put your safe eyJ... key here!
+
+        // Renamed to DB to prevent clash with the global window.supabase object loaded by the script tag
+        const DB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let dictionaryData = [];
 
-        // 2. Fetch all keywords from Supabase automatically on startup
         async function loadDictionary() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await DB
                     .from('dictionary')
                     .select('keyword, strict_name')
                     .order('keyword', { ascending: true });
@@ -61,7 +63,6 @@
             }
         }
 
-        // 3. Render the sidebar index list dynamically
         function renderSidebar() {
             const listContainer = document.getElementById('keyword-list');
             if (dictionaryData.length === 0) {
@@ -78,9 +79,7 @@
             `).join('');
         }
 
-        // 4. Fetch precise record definitions instantly on-demand when clicked
         async function displayDetails(keyword, element) {
-            // Update active state class inside sidebar menu selection
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
 
@@ -88,7 +87,7 @@
             detailsContainer.innerHTML = '<div class="text-gray-400 animate-pulse text-center">Querying database engine...</div>';
 
             try {
-                const { data, error } = await supabase
+                const { data, error } = await DB
                     .from('dictionary')
                     .select('*')
                     .eq('keyword', keyword)
@@ -96,7 +95,6 @@
 
                 if (error) throw error;
 
-                // Render out pristine custom dictionary components visually
                 detailsContainer.className = "flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full opacity-100 transition-opacity duration-200 text-left";
                 detailsContainer.innerHTML = `
                     <div class="mb-6">
@@ -130,7 +128,6 @@
             }
         }
 
-        // Trigger startup engine lookup hooks
         window.onload = loadDictionary;
     </script>
 </body>
