@@ -1,5 +1,85 @@
 [
   {
+    "name": "Store in variable",
+    "type": "Command",
+    "syntax": "Store the value [Value] into the variable named [VariableName].",
+    "livecode_equivalent": "put [Value] into [VariableName]",
+    "description": "Creates a new variable or overwrites an existing variable with a specified piece of data.",
+    "example": "Store the value 42 into the variable named \"TotalScore\"."
+  },
+  {
+    "name": "Append to variable",
+    "type": "Command",
+    "syntax": "Append the text [Value] to the end of the variable named [VariableName].",
+    "livecode_equivalent": "put [Value] after [VariableName]",
+    "description": "Adds a string or value directly to the conclusion of an existing variable's contents without clearing it.",
+    "example": "Append the text \", thank you\" to the end of the variable named \"UserGreeting\"."
+  },
+  {
+    "name": "Prepend to variable",
+    "type": "Command",
+    "syntax": "Prepend the text [Value] to the beginning of the variable named [VariableName].",
+    "livecode_equivalent": "put [Value] before [VariableName]",
+    "description": "Inserts a string or value directly at the very start of an existing variable's contents.",
+    "example": "Prepend the text \"Error: \" to the beginning of the variable named \"LogMessage\"."
+  },
+  {
+    "name": "Calculate addition",
+    "type": "Command",
+    "syntax": "Add the number [Value] to the variable named [VariableName].",
+    "livecode_equivalent": "add [Value] to [VariableName]",
+    "description": "Performs basic mathematical addition, increasing the value stored within a target numeric variable.",
+    "example": "Add the number 5 to the variable named \"ItemCount\"."
+  },
+  {
+    "name": "Calculate subtraction",
+    "type": "Command",
+    "syntax": "Subtract the number [Value] from the variable named [VariableName].",
+    "livecode_equivalent": "subtract [Value] from [VariableName]",
+    "description": "Performs basic mathematical subtraction, decreasing the value stored within a target numeric variable.",
+    "example": "Subtract the number 10 from the variable named \"RemainingBalance\"."
+  },
+  {
+    "name": "Calculate multiplication",
+    "type": "Command",
+    "syntax": "Multiply the variable named [VariableName] by the number [Value].",
+    "livecode_equivalent": "multiply [VariableName] by [Value]",
+    "description": "Multiplies the current numeric contents of a variable by a specified factor.",
+    "example": "Multiply the variable named \"TaxAmount\" by the number 1.2."
+  },
+  {
+    "name": "Calculate division",
+    "type": "Command",
+    "syntax": "Divide the variable named [VariableName] by the number [Value].",
+    "livecode_equivalent": "divide [VariableName] by [Value]",
+    "description": "Divides the current numeric contents of a variable by a specified divisor.",
+    "example": "Divide the variable named \"TotalCakeWeight\" by the number 4."
+  },
+  {
+    "name": "Extract text chunk",
+    "type": "Function",
+    "syntax": "Extract words [Start] through [End] of the text source [Source].",
+    "livecode_equivalent": "word [Start] to [End] of [Source]",
+    "description": "Isolates and returns a specific range of space-separated words out of a larger block of text.",
+    "example": "Extract words 2 through 4 of the text source \"The quick brown fox jumps\"."
+  },
+  {
+    "name": "Count items",
+    "type": "Function",
+    "syntax": "Count the total number of items within the text source [Source].",
+    "livecode_equivalent": "the number of items in [Source]",
+    "description": "Returns a numeric count of comma-separated components present within a given text string.",
+    "example": "Count the total number of items within the text source \"Flour, Sugar, Eggs, Butter\"."
+  },
+  {
+    "name": "Clear memory container",
+    "type": "Command",
+    "syntax": "Delete the variable named [VariableName].",
+    "livecode_equivalent": "delete variable [VariableName]",
+    "description": "Completely purges a variable from memory, freeing up system resources.",
+    "example": "Delete the variable named \"TemporaryToken\"."
+  },
+  {
     "name": "Create interface element",
     "type": "Command",
     "syntax": "Create a new [ElementType] named [Name] on the current card.",
