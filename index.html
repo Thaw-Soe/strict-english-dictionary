@@ -13,18 +13,34 @@
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans flex h-screen overflow-hidden">
 
-    <!-- LEFT SIDEBAR -->
     <aside class="w-80 bg-gray-800 flex flex-col border-r border-gray-700">
         <div class="p-4 border-b border-gray-700">
             <h1 class="text-xl font-bold text-sky-400">Strict English Spec</h1>
             <p class="text-xs text-gray-400 mt-1">Live Database Documentation</p>
         </div>
+        
+        <div class="p-3 border-b border-gray-700/50">
+            <div class="relative">
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    oninput="filterSidebar()"
+                    placeholder="Search commands..." 
+                    class="w-full bg-gray-950 text-sm text-gray-200 pl-9 pr-3 py-2 rounded border border-gray-700 focus:outline-none focus:border-sky-500 placeholder-gray-500 transition"
+                />
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
         <nav id="keyword-list" class="flex-1 overflow-y-auto p-2 space-y-1">
             <div class="text-center text-gray-500 py-8">Connecting to database...</div>
         </nav>
     </aside>
 
-    <!-- RIGHT CONTENT AREA -->
     <main class="flex-1 flex flex-col overflow-hidden bg-gray-950">
         <div id="details-view" class="flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full flex flex-col justify-center items-center text-center">
             <div class="text-gray-500">
@@ -36,11 +52,9 @@
 
     <script>
         const SUPABASE_URL = 'https://bkhvrqopgxjvztwjoalr.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJraHZycW9wZ3hqdnp0d2pvYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTYxODQsImV4cCI6MjA5OTM3MjE4NH0.2Dmc3PxZouIbI85IzzRbb2jn_yJPbtZUb9jYt2UuigE'; // Put your safe eyJ... key here!
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJraHZycW9wZ3hqdnp0d2pvYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTYxODQsImV4cCI6MjA5OTM3MjE4NH0.2Dmc3PxZouIbI85IzzRbb2jn_yJPbtZUb9jYt2UuigE';
 
-        // Renamed to DB to prevent clash with the global window.supabase object loaded by the script tag
         const DB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         let dictionaryData = [];
 
         async function loadDictionary() {
@@ -53,7 +67,7 @@
                 if (error) throw error;
                 
                 dictionaryData = data;
-                renderSidebar();
+                renderSidebar(dictionaryData);
             } catch (err) {
                 console.error("Database connection error:", err);
                 document.getElementById('keyword-list').innerHTML = `
@@ -63,20 +77,30 @@
             }
         }
 
-        function renderSidebar() {
+        function renderSidebar(dataToRender) {
             const listContainer = document.getElementById('keyword-list');
-            if (dictionaryData.length === 0) {
-                listContainer.innerHTML = '<div class="text-gray-500 text-center py-8 text-sm">Database table is empty. Add entries via Airtable to see them here!</div>';
+            if (dataToRender.length === 0) {
+                listContainer.innerHTML = '<div class="text-gray-500 text-center py-8 text-sm">No matching items found.</div>';
                 return;
             }
 
-            listContainer.innerHTML = dictionaryData.map(item => `
+            listContainer.innerHTML = dataToRender.map(item => `
                 <button onclick="displayDetails('${item.keyword}', this)" 
                         class="sidebar-item w-full text-left px-3 py-2 rounded text-sm font-medium transition duration-150 flex flex-col gap-0.5">
                     <span class="text-gray-200 truncate font-mono">${item.keyword}</span>
                     <span class="text-xs text-gray-400 font-sans truncate">${item.strict_name || 'No title defined'}</span>
                 </button>
             `).join('');
+        }
+
+        // Filters local variable copy instantly without slamming Supabase API limits
+        function filterSidebar() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const filtered = dictionaryData.filter(item => 
+                item.keyword.toLowerCase().includes(query) || 
+                (item.strict_name && item.strict_name.toLowerCase().includes(query))
+            );
+            renderSidebar(filtered);
         }
 
         async function displayDetails(keyword, element) {
