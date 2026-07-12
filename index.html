@@ -195,27 +195,41 @@
                     <tr><td colspan="3" class="text-red-500 text-center py-4 font-sans">Failed to sync database index.</td></tr>`;
             }
         }
-        
-            <div class="mb-4">
-                <!-- Header row: displays the 'type:' label and the active pill badge -->
-                <div class="flex items-center gap-2 mb-2 select-none">
-                    <span class="font-bold text-gray-900 uppercase tracking-wide text-[11px]">type:</span>
-                    <div id="active-type-token" class="flex items-center"></div>
-                </div>
-                
-                <!-- Links container: explicitly styled to force a left-aligned vertical stack -->
-                <div id="type-filter-list" class="flex flex-col items-start gap-1 text-sky-600 font-medium">
-                    <!-- Text links drop here dynamically -->
-                </div>
-            </div>
 
+        // Builds out left-justified vertical sidebar buttons or token badges
+        function buildSidebarTypes() {
+            const tokenContainer = document.getElementById('active-type-token');
+            const listContainer = document.getElementById('type-filter-list');
+            
+            if (activeFilterType) {
+                tokenContainer.innerHTML = `
+                    <div class="flex items-center bg-white border border-gray-300 rounded pl-2 pr-1.5 py-0.5 text-xs text-gray-800 shadow-sm max-w-[140px] select-none ml-1">
+                        <span class="truncate font-sans font-medium text-[12px]">${activeFilterType.toLowerCase()}</span>
+                        <button onclick="toggleTypeFilter(null)" class="text-gray-400 hover:text-red-500 font-bold font-mono ml-1.5 text-[14px] leading-none">×</button>
+                    </div>
+                `;
+                listContainer.innerHTML = '';
+                return;
+            }
+            
+            tokenContainer.innerHTML = '';
+            
+            const types = [...new Set(dictionaryData.map(item => item.strict_name || 'unknown'))].sort();
+            
+            listContainer.innerHTML = types.map(type => `
+                <button onclick="toggleTypeFilter('${type}')" 
+                        class="block w-full text-left text-sky-600 hover:underline hover:text-sky-800 text-[12px] font-medium truncate py-0.5">
+                    ${type.toLowerCase()}
+                </button>
+            `).join('');
+        }
 
-// Triggers layout update and recalculates active filter states
-function toggleTypeFilter(type) {
-    activeFilterType = type;
-    buildSidebarTypes();
-    filterData();
-}
+        // Triggers layout update and recalculates active filter states
+        function toggleTypeFilter(type) {
+            activeFilterType = type;
+            buildSidebarTypes();
+            filterData();
+        }
 
         // Real-time combination filter (Left sidebar categories + Top-right text search box)
         function filterData() {
@@ -250,7 +264,6 @@ function toggleTypeFilter(type) {
         }
 
         async function displayDetails(keyword, rowElement) {
-            // Visual feedback handling on the table rows
             document.querySelectorAll('#dictionary-table-body tr').forEach(tr => tr.classList.remove('selected'));
             if(rowElement) rowElement.classList.add('selected');
 
@@ -269,7 +282,6 @@ function toggleTypeFilter(type) {
 
                 const data = records[0];
 
-                // Native LiveCode layout styling with descriptive definition blocks
                 detailsContainer.innerHTML = `
                     <h1 class="text-4xl font-serif font-normal text-gray-900 mb-6">${data.keyword}</h1>
                     
