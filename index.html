@@ -274,49 +274,53 @@ function buildSidebarTypes() {
             `).join('');
         }
 
-        async function displayDetails(keyword, rowElement) {
-            document.querySelectorAll('#dictionary-table-body tr').forEach(tr => tr.classList.remove('selected'));
-            if(rowElement) rowElement.classList.add('selected');
-
-            const detailsContainer = document.getElementById('details-view');
-            detailsContainer.innerHTML = '<div class="text-gray-400 font-sans animate-pulse">Querying dictionary definition schema...</div>';
-
-            try {
-                const { data: records, error } = await DB
-                    .from('dictionary')
-                    .select('*')
-                    .eq('keyword', keyword)
-                    .limit(1);
-
-                if (error) throw error;
-                if (!records || records.length === 0) throw new Error("Item profile record missing.");
-
-                const data = records[0];
-
+            function displayDetails(keyword, rowElement) {
+                // 1. Highlight the selected row visually
+                const rows = document.querySelectorAll('#dictionary-tbody tr');
+                rows.forEach(r => r.classList.remove('bg-sky-50', 'border-l-4', 'border-sky-500'));
+                
+                if (rowElement) {
+                    rowElement.classList.add('bg-sky-50', 'border-l-4', 'border-sky-500');
+                }
+            
+                // 2. Find the item record data inside your local array cache
+                const item = dictionaryData.find(d => d.keyword === keyword);
+                const detailsContainer = document.getElementById('details-panel');
+                
+                if (!item) {
+                    detailsContainer.innerHTML = `<p class="text-gray-400 text-xs font-sans">Select an item to view full documentation details.</p>`;
+                    return;
+                }
+            
+                // 3. Render the full parameters, formatting code snippets beautifully
                 detailsContainer.innerHTML = `
-                    <h1 class="text-4xl font-serif font-normal text-gray-900 mb-6">${data.keyword}</h1>
-                    
-                    <div class="space-y-4 max-w-3xl font-sans text-[13px]">
-                        <div class="flex items-start">
-                            <span class="w-28 flex-shrink-0 font-bold text-gray-900">Type</span>
-                            <span class="text-gray-700">${data.strict_name || 'unassigned'}</span>
+                    <div class="space-y-4 font-sans anim-fade-in">
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900 font-mono tracking-tight">${item.keyword}</h2>
+                            <span class="inline-block bg-sky-100 text-sky-800 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded mt-1">
+                                ${item.strict_name || 'Unknown'}
+                            </span>
                         </div>
-                        
-                        <div class="flex items-start">
-                            <span class="w-28 flex-shrink-0 font-bold text-gray-900">Syntax</span>
-                            <div class="flex-1 bg-gray-50 border border-gray-200 rounded p-2.5 font-mono text-[12px] text-gray-800 whitespace-pre-wrap">${data.syntax || '-'}</div>
+            
+                        <hr class="border-gray-200" />
+            
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Strict Syntax</h3>
+                            <code class="block w-full bg-gray-50 border border-gray-200 text-gray-800 font-mono text-[12px] p-2.5 rounded overflow-x-auto whitespace-pre-wrap break-all">
+                                ${item.syntax || 'No explicit syntax defined.'}
+                            </code>
                         </div>
-
-                        <div class="flex items-start">
-                            <span class="w-28 flex-shrink-0 font-bold text-gray-900">Summary</span>
-                            <span class="flex-1 text-gray-700 leading-relaxed">${data.description || 'No summary overview provided.'}</span>
+            
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Description</h3>
+                            <p class="text-gray-700 text-[13px] leading-relaxed">${item.description || 'No description available.'}</p>
                         </div>
-
-                        <div class="flex items-start">
-                            <span class="w-28 flex-shrink-0 font-bold text-gray-900">Examples</span>
-                            <div class="flex-1 space-y-2">
-                                <div class="bg-gray-50 border border-gray-200 rounded p-2.5 font-mono text-[12px] text-purple-700 whitespace-pre-wrap">${data.example || '// No validation use cases verified.'}</div>
-                            </div>
+            
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Example Usage</h3>
+                            <code class="block w-full bg-slate-900 text-emerald-400 font-mono text-[12px] p-3 rounded overflow-x-auto whitespace-pre-wrap break-all shadow-sm">
+                                ${item.example || '-- No example provided.'}
+                            </code>
                         </div>
                     </div>
                 `;
