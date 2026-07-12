@@ -195,32 +195,20 @@
                     <tr><td colspan="3" class="text-red-500 text-center py-4 font-sans">Failed to sync database index.</td></tr>`;
             }
         }
-
-// Updated function to build the sidebar filter list to match the native look
-function buildSidebarTypes() {
-    const filterContainer = document.getElementById('type-filter-list');
-    
-    // If a filter type is actively selected, show it as a removable filter button/token
-    if (activeFilterType) {
-        filterContainer.innerHTML = `
-            <div class="col-span-2 flex items-center justify-between border border-gray-300 bg-white rounded px-2 py-1 text-xs text-gray-800 shadow-sm max-w-[140px]">
-                <span class="truncate font-sans">${activeFilterType.toLowerCase()}</span>
-                <button onclick="toggleTypeFilter(null)" class="text-gray-400 hover:text-red-500 font-bold font-mono ml-2 text-[14px] leading-none">×</button>
+        
+            <div class="mb-4">
+                <!-- Header row: displays the 'type:' label and the active pill badge -->
+                <div class="flex items-center gap-2 mb-2 select-none">
+                    <span class="font-bold text-gray-900 uppercase tracking-wide text-[11px]">type:</span>
+                    <div id="active-type-token" class="flex items-center"></div>
+                </div>
+                
+                <!-- Links container: explicitly styled to force a left-aligned vertical stack -->
+                <div id="type-filter-list" class="flex flex-col items-start gap-1 text-sky-600 font-medium">
+                    <!-- Text links drop here dynamically -->
+                </div>
             </div>
-        `;
-        return;
-    }
-    
-    // Otherwise, list out all available types as clickable filter links
-    const types = [...new Set(dictionaryData.map(item => item.strict_name || 'unknown'))].sort();
-    
-    filterContainer.innerHTML = types.map(type => `
-        <button onclick="toggleTypeFilter('${type}')" 
-                class="text-left text-sky-600 hover:underline hover:text-sky-800 text-[12px] font-medium truncate py-0.5">
-            ${type.toLowerCase()}
-        </button>
-    `).join('');
-}
+
 
 // Triggers layout update and recalculates active filter states
 function toggleTypeFilter(type) {
