@@ -196,33 +196,40 @@
             }
         }
 
-        // Builds out left-justified vertical sidebar buttons or token badges
-        function buildSidebarTypes() {
-            const tokenContainer = document.getElementById('active-type-token');
-            const listContainer = document.getElementById('type-filter-list');
-            
-            if (activeFilterType) {
-                tokenContainer.innerHTML = `
-                    <div class="flex items-center bg-white border border-gray-300 rounded pl-2 pr-1.5 py-0.5 text-xs text-gray-800 shadow-sm max-w-[140px] select-none ml-1">
-                        <span class="truncate font-sans font-medium text-[12px]">${activeFilterType.toLowerCase()}</span>
-                        <button onclick="toggleTypeFilter(null)" class="text-gray-400 hover:text-red-500 font-bold font-mono ml-1.5 text-[14px] leading-none">×</button>
-                    </div>
-                `;
-                listContainer.innerHTML = '';
-                return;
-            }
-            
-            tokenContainer.innerHTML = '';
-            
-            const types = [...new Set(dictionaryData.map(item => item.strict_name || 'unknown'))].sort();
-            
-            listContainer.innerHTML = types.map(type => `
-                <button onclick="toggleTypeFilter('${type}')" 
-                        class="block w-full text-left text-sky-600 hover:underline hover:text-sky-800 text-[12px] font-medium truncate py-0.5">
-                    ${type.toLowerCase()}
-                </button>
-            `).join('');
-        }
+function buildSidebarTypes() {
+    const tokenContainer = document.getElementById('active-type-token');
+    const listContainer = document.getElementById('type-filter-list');
+    
+    // Scenario A: An active filter is selected -> render next to header, wipe list below
+    if (activeFilterType) {
+        tokenContainer.innerHTML = `
+            <div class="flex items-center bg-white border border-gray-300 rounded pl-2 pr-1.5 py-0.5 text-xs text-gray-800 shadow-sm max-w-[140px] select-none ml-1">
+                <span class="truncate font-sans font-medium text-[12px]">${activeFilterType.toLowerCase()}</span>
+                <button onclick="toggleTypeFilter(null)" class="text-gray-400 hover:text-red-500 font-bold font-mono ml-1.5 text-[14px] leading-none">×</button>
+            </div>
+        `;
+        listContainer.innerHTML = '';
+        return;
+    }
+    
+    tokenContainer.innerHTML = '';
+    
+    // Clean string transformations to scrub out casing or space duplication anomalies
+    const rawTypes = dictionaryData.map(item => {
+        const name = item.strict_name || 'unknown';
+        return name.trim().toLowerCase();
+    });
+    
+    // Extract unique, sorted categories
+    const uniqueTypes = [...new Set(rawTypes)].sort();
+    
+    listContainer.innerHTML = uniqueTypes.map(type => `
+        <button onclick="toggleTypeFilter('${type}')" 
+                class="block w-full text-left text-sky-600 hover:underline hover:text-sky-800 text-[12px] font-medium truncate py-0.5">
+            ${type}
+        </button>
+    `).join('');
+}
 
         // Triggers layout update and recalculates active filter states
         function toggleTypeFilter(type) {
