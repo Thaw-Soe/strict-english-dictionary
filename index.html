@@ -110,14 +110,18 @@
             const detailsContainer = document.getElementById('details-view');
             detailsContainer.innerHTML = '<div class="text-gray-400 animate-pulse text-center">Querying database engine...</div>';
 
-            try {
-                const { data, error } = await DB
+try {
+                // Using .limit(1) safely handles instances where duplicate keywords exist in the database
+                const { data: records, error } = await DB
                     .from('dictionary')
                     .select('*')
                     .eq('keyword', keyword)
-                    .single();
+                    .limit(1);
 
                 if (error) throw error;
+                if (!records || records.length === 0) throw new Error("Record not found.");
+
+                const data = records[0]; // Extract the match to keep your template literal intact
 
                 detailsContainer.className = "flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full opacity-100 transition-opacity duration-200 text-left";
                 detailsContainer.innerHTML = `
