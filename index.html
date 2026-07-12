@@ -237,17 +237,21 @@ function buildSidebarTypes() {
             buildSidebarTypes();
             filterData();
         }
-
+        
         // Real-time combination filter (Left sidebar categories + Top-right text search box)
         function filterData() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             
             const filtered = dictionaryData.filter(item => {
-                const matchesType = !activeFilterType || item.strict_name === activeFilterType;
+                // Enforce lowercase matching to bridge database capitalization with filter token text
+                const matchesType = !activeFilterType || 
+                    (item.strict_name && item.strict_name.trim().toLowerCase() === activeFilterType.toLowerCase());
+                    
                 const matchesSearch = !query || 
                     item.keyword.toLowerCase().includes(query) || 
                     (item.strict_name && item.strict_name.toLowerCase().includes(query)) ||
                     (item.syntax && item.syntax.toLowerCase().includes(query));
+                    
                 return matchesType && matchesSearch;
             });
             
