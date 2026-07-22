@@ -9,8 +9,9 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         .table-row-selected { background-color: #e8f0fe !important; }
-        .wiki-link { color: #3b82f6; cursor: pointer; }
-        .wiki-link:hover { text-decoration: underline; }
+        .filter-btn { color: #2563eb; cursor: pointer; text-align: left; background: none; border: none; padding: 0; }
+        .filter-btn:hover { text-decoration: underline; }
+        .filter-btn.active-filter { font-weight: bold; color: #1d4ed8; text-decoration: underline; }
     </style>
 </head>
 <body class="bg-[#f0f0f0] text-gray-800 min-h-screen flex flex-col text-sm">
@@ -37,7 +38,7 @@
         </div>
 
         <div class="flex items-center">
-            <input type="text" id="api-search" oninput="filterKeywords()" placeholder="Search" 
+            <input type="text" id="api-search" oninput="applyFilters()" placeholder="Search" 
                    class="border border-gray-300 border-r-0 rounded-l px-3 py-1 w-64 focus:outline-none bg-white">
             <button class="border border-gray-300 rounded-r px-2 py-1 bg-white text-gray-500 hover:bg-gray-50">🔍</button>
         </div>
@@ -48,41 +49,42 @@
         
         <!-- LEFT SIDEBAR: FILTERS -->
         <aside class="w-60 border border-gray-300 rounded bg-white flex flex-col shrink-0 overflow-hidden">
-            <div class="bg-[#f0f0f0] border-b border-gray-300 px-3 py-1.5 font-semibold text-xs text-gray-700">
-                Filters
+            <div class="bg-[#f0f0f0] border-b border-gray-300 px-3 py-1.5 font-semibold text-xs text-gray-700 flex justify-between items-center">
+                <span>Filters</span>
+                <button onclick="clearTypeFilter()" id="clear-filter-btn" class="text-[10px] text-blue-600 hidden hover:underline">Clear</button>
             </div>
-            <div class="p-3 overflow-y-auto text-xs space-y-4 text-blue-600">
+            <div class="p-3 overflow-y-auto text-xs space-y-4">
                 <div>
                     <div class="font-bold text-black mb-1">type:</div>
                     <div class="grid grid-cols-2 gap-x-2 gap-y-1">
-                        <span class="wiki-link">command</span>
-                        <span class="wiki-link">library</span>
-                        <span class="wiki-link">constant</span>
-                        <span class="wiki-link">message</span>
-                        <span class="wiki-link">control structure</span>
-                        <span class="wiki-link">object</span>
-                        <span class="wiki-link">function</span>
-                        <span class="wiki-link">operator</span>
-                        <span class="wiki-link">glossary</span>
-                        <span class="wiki-link">property</span>
-                        <span class="wiki-link">handler</span>
-                        <span class="wiki-link">widget</span>
-                        <span class="wiki-link font-semibold text-blue-800">keyword</span>
+                        <button class="filter-btn" onclick="toggleTypeFilter('command', this)">command</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('library', this)">library</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('constant', this)">constant</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('message', this)">message</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('control structure', this)">control structure</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('object', this)">object</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('function', this)">function</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('operator', this)">operator</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('glossary', this)">glossary</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('property', this)">property</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('handler', this)">handler</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('widget', this)">widget</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('keyword', this)">keyword</button>
                     </div>
                 </div>
 
                 <div class="pt-2 border-t border-gray-200">
                     <div class="font-bold text-black mb-1">associations:</div>
                     <div class="space-y-1 flex flex-col">
-                        <span class="wiki-link">animation library</span>
-                        <span class="wiki-link">audioclip</span>
-                        <span class="wiki-link">blur</span>
-                        <span class="wiki-link">button</span>
-                        <span class="wiki-link">cameracontrol</span>
-                        <span class="wiki-link">card</span>
-                        <span class="wiki-link">drawing library</span>
-                        <span class="wiki-link">json library</span>
-                        <span class="wiki-link">qr code generator</span>
+                        <button class="filter-btn" onclick="toggleTypeFilter('animation library', this)">animation library</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('audioclip', this)">audioclip</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('blur', this)">blur</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('button', this)">button</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('cameracontrol', this)">cameracontrol</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('card', this)">card</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('drawing library', this)">drawing library</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('json library', this)">json library</button>
+                        <button class="filter-btn" onclick="toggleTypeFilter('qr code generator', this)">qr code generator</button>
                     </div>
                 </div>
             </div>
@@ -125,6 +127,7 @@
 
         const DB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let dictionaryData = [];
+        let activeTypeFilter = null;
 
         async function loadDictionary() {
             try {
@@ -137,7 +140,6 @@
                 dictionaryData = data;
                 renderTable(dictionaryData);
                 
-                // Automatically display the first record if available
                 if (dictionaryData.length > 0) {
                     displayDetails(dictionaryData[0].keyword);
                 }
@@ -159,7 +161,7 @@
                     onclick="selectRow(this, '${item.keyword}')"
                     class="hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100">
                     <td class="py-1 px-3 border-r border-gray-100 text-gray-900 font-semibold">${item.keyword}</td>
-                    <td class="py-1 px-3 border-r border-gray-100 text-gray-600 font-sans">keyword</td>
+                    <td class="py-1 px-3 border-r border-gray-100 text-gray-600 font-sans">${item.strict_name || 'keyword'}</td>
                     <td class="py-1 px-3 text-gray-700 truncate">${item.syntax || item.keyword}</td>
                 </tr>
             `).join('');
@@ -171,13 +173,39 @@
             displayDetails(keyword);
         }
 
-        function filterKeywords() {
+        function toggleTypeFilter(type, buttonEl) {
+            if (activeTypeFilter === type) {
+                clearTypeFilter();
+            } else {
+                activeTypeFilter = type;
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
+                buttonEl.classList.add('active-filter');
+                document.getElementById('clear-filter-btn').classList.remove('hidden');
+                applyFilters();
+            }
+        }
+
+        function clearTypeFilter() {
+            activeTypeFilter = null;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
+            document.getElementById('clear-filter-btn').classList.add('hidden');
+            applyFilters();
+        }
+
+        function applyFilters() {
             const query = document.getElementById('api-search').value.toLowerCase();
-            const filtered = dictionaryData.filter(item => 
-                item.keyword.toLowerCase().includes(query) || 
-                (item.syntax && item.syntax.toLowerCase().includes(query)) ||
-                (item.strict_name && item.strict_name.toLowerCase().includes(query))
-            );
+            
+            const filtered = dictionaryData.filter(item => {
+                const matchesSearch = item.keyword.toLowerCase().includes(query) || 
+                                     (item.syntax && item.syntax.toLowerCase().includes(query)) ||
+                                     (item.strict_name && item.strict_name.toLowerCase().includes(query));
+                
+                const matchesType = !activeTypeFilter || 
+                                    (item.strict_name && item.strict_name.toLowerCase() === activeTypeFilter.toLowerCase());
+                
+                return matchesSearch && matchesType;
+            });
+
             renderTable(filtered);
         }
 
@@ -193,7 +221,6 @@
 
                 if (error) throw error;
 
-                // Highlight corresponding row in table
                 const tr = document.querySelector(`#dictionary-table-body tr[data-keyword="${keyword}"]`);
                 if (tr) {
                     document.querySelectorAll('#dictionary-table-body tr').forEach(r => r.classList.remove('table-row-selected'));
@@ -201,51 +228,41 @@
                 }
 
                 detailsContainer.innerHTML = `
-                    <div class="space-y-6">
+                    <div class="space-y-4 max-w-4xl text-left">
                         <!-- HEADER TITLE -->
-                        <h1 class="text-4xl font-bold text-gray-900 font-mono tracking-tight">${data.keyword}</h1>
+                        <h1 class="text-4xl font-bold text-gray-900 font-mono tracking-tight pb-2 border-b border-gray-200">${data.keyword}</h1>
 
-                        <!-- METADATA ROWS -->
-                        <div class="space-y-4 text-sm">
-                            <div class="flex items-start">
-                                <span class="w-28 font-bold text-gray-700 shrink-0">Type</span>
-                                <span class="text-gray-800">${data.strict_name || 'keyword'}</span>
-                            </div>
+                        <!-- TYPE -->
+                        <div class="space-y-1">
+                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Type</span>
+                            <span class="text-gray-900 text-sm font-medium">${data.strict_name || 'keyword'}</span>
+                        </div>
 
-                            <!-- SYNTAX BOX -->
-                            <div class="flex items-start">
-                                <span class="w-28 font-bold text-gray-700 shrink-0 mt-1">Syntax</span>
-                                <div class="flex-1 bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-gray-800 text-xs overflow-x-auto whitespace-pre-wrap">
-                                    ${data.syntax || data.keyword}
-                                </div>
-                            </div>
+                        <!-- SYNTAX -->
+                        <div class="space-y-1">
+                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Syntax</span>
+                            <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-gray-800 text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed">${data.syntax || data.keyword}</div>
+                        </div>
 
-                            <!-- SUMMARY / DESCRIPTION -->
-                            <div class="flex items-start">
-                                <span class="w-28 font-bold text-gray-700 shrink-0">Summary</span>
-                                <div class="flex-1 text-gray-800 leading-relaxed">
-                                    ${data.description || 'No summary context available for this entry.'}
-                                </div>
-                            </div>
+                        <!-- SUMMARY -->
+                        <div class="space-y-1">
+                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Summary</span>
+                            <div class="text-gray-800 text-sm leading-relaxed">${data.description || 'No summary context available for this entry.'}</div>
+                        </div>
 
-                            <!-- EXAMPLES -->
-                            <div class="flex items-start">
-                                <span class="w-28 font-bold text-gray-700 shrink-0 mt-1">Examples</span>
-                                <div class="flex-1 space-y-2">
-                                    <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-xs overflow-x-auto whitespace-pre-wrap">
-                                        <span class="text-purple-900 font-semibold">${data.example || 'click button "Submit"'}</span>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- EXAMPLES -->
+                        <div class="space-y-1">
+                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Examples</span>
+                            <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-xs overflow-x-auto whitespace-pre-wrap text-purple-900 font-semibold leading-relaxed">${data.example || 'click button "Submit"'}</div>
+                        </div>
 
-                            <!-- RELATED -->
-                            <div class="flex items-start pt-2">
-                                <span class="w-28 font-bold text-gray-700 shrink-0">Related</span>
-                                <div class="flex-1 text-xs space-y-1">
-                                    <div>keyword: <span class="wiki-link">@</span></div>
-                                    <div>message: <span class="wiki-link">relaunch</span></div>
-                                    <div>command: <span class="wiki-link">open process</span></div>
-                                </div>
+                        <!-- RELATED -->
+                        <div class="space-y-1 pt-2">
+                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Related</span>
+                            <div class="text-xs space-y-0.5">
+                                <div>keyword: <span class="filter-btn">@</span></div>
+                                <div>message: <span class="filter-btn">relaunch</span></div>
+                                <div>command: <span class="filter-btn">open process</span></div>
                             </div>
                         </div>
                     </div>
