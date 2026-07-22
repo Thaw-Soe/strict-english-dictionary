@@ -3,78 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strict English - Wikipedia</title>
+    <title>Dictionary</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; }
-        .wiki-serif { font-family: 'Linux Libertine', 'Georgia', 'Times', serif; }
-        .wiki-link { color: #36c; text-decoration: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .table-row-selected { background-color: #e8f0fe !important; }
+        .wiki-link { color: #3b82f6; cursor: pointer; }
         .wiki-link:hover { text-decoration: underline; }
-        .wiki-border { border-color: #a2a9b1; }
-        .wiki-bg-gray { background-color: #f8f9fa; }
     </style>
 </head>
-<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+<body class="bg-[#f0f0f0] text-gray-800 min-h-screen flex flex-col text-sm">
 
-    <!-- WIKIPEDIA TOP HEADER -->
-    <header class="border-b border-gray-300 px-6 py-2 flex items-center justify-between text-xs bg-white sticky top-0 z-10">
-        <div class="flex items-center space-x-4">
-            <span class="font-bold text-base tracking-tight text-black flex items-center gap-2">
-                <span class="wiki-serif text-xl border px-1 border-gray-400">W</span> Strict English
-            </span>
-            <span class="text-gray-500 hidden sm:inline">The Free Lexicon Specification</span>
-        </div>
-        <div class="flex items-center space-x-3">
-            <input type="text" id="wiki-search" oninput="filterKeywords()" placeholder="Search Strict English..." 
-                   class="border border-gray-400 px-2 py-1 text-xs w-48 focus:outline-none focus:border-blue-600">
-        </div>
-    </header>
+    <!-- TOP HEADER TABS -->
+    <div class="bg-[#e5e5e5] border-b border-gray-300 px-3 py-1 flex items-center text-xs gap-4">
+        <span class="font-semibold text-black border-b-2 border-black pb-0.5 cursor-pointer">API</span>
+        <span class="text-gray-600 hover:text-black cursor-pointer">Guide</span>
+    </div>
 
-    <div class="flex flex-1 max-w-7xl w-full mx-auto">
+    <!-- SUB-HEADER TOOLBAR -->
+    <div class="bg-[#f8f9fa] border-b border-gray-300 px-4 py-2 flex items-center justify-between gap-4 text-xs">
+        <div class="flex items-center gap-2">
+            <span class="text-gray-600">Choose API:</span>
+            <select class="border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none">
+                <option>Strict English Script</option>
+            </select>
+        </div>
+
+        <div class="flex items-center gap-2 text-gray-400">
+            <button class="px-2 py-0.5 border border-gray-300 rounded bg-white hover:bg-gray-50 text-gray-600" disabled>&lt;</button>
+            <button class="px-2 py-0.5 border border-gray-300 rounded bg-white hover:bg-gray-50 text-gray-600" disabled>&gt;</button>
+            <span class="text-gray-400 ml-1">🕒</span>
+        </div>
+
+        <div class="flex items-center">
+            <input type="text" id="api-search" oninput="filterKeywords()" placeholder="Search" 
+                   class="border border-gray-300 border-r-0 rounded-l px-3 py-1 w-64 focus:outline-none bg-white">
+            <button class="border border-gray-300 rounded-r px-2 py-1 bg-white text-gray-500 hover:bg-gray-50">🔍</button>
+        </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN CONTAINER -->
+    <div class="flex flex-1 p-3 gap-3 max-w-[1600px] w-full mx-auto overflow-hidden">
         
-        <!-- WIKIPEDIA LEFT SIDEBAR -->
-        <aside class="w-48 p-4 border-r border-gray-300 text-xs text-gray-700 hidden md:block shrink-0 wiki-bg-gray">
-            <div class="mb-6">
-                <div class="font-bold border-b border-gray-300 pb-1 mb-2 text-gray-900">Navigation</div>
-                <ul class="space-y-1">
-                    <li><a href="#" class="wiki-link">Main Page</a></li>
-                    <li><a href="#" class="wiki-link">Contents</a></li>
-                    <li><a href="#" class="wiki-link">Current spec</a></li>
-                    <li><a href="#" class="wiki-link">Random article</a></li>
-                </ul>
+        <!-- LEFT SIDEBAR: FILTERS -->
+        <aside class="w-60 border border-gray-300 rounded bg-white flex flex-col shrink-0 overflow-hidden">
+            <div class="bg-[#f0f0f0] border-b border-gray-300 px-3 py-1.5 font-semibold text-xs text-gray-700">
+                Filters
             </div>
+            <div class="p-3 overflow-y-auto text-xs space-y-4 text-blue-600">
+                <div>
+                    <div class="font-bold text-black mb-1">type:</div>
+                    <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+                        <span class="wiki-link">command</span>
+                        <span class="wiki-link">library</span>
+                        <span class="wiki-link">constant</span>
+                        <span class="wiki-link">message</span>
+                        <span class="wiki-link">control structure</span>
+                        <span class="wiki-link">object</span>
+                        <span class="wiki-link">function</span>
+                        <span class="wiki-link">operator</span>
+                        <span class="wiki-link">glossary</span>
+                        <span class="wiki-link">property</span>
+                        <span class="wiki-link">handler</span>
+                        <span class="wiki-link">widget</span>
+                        <span class="wiki-link font-semibold text-blue-800">keyword</span>
+                    </div>
+                </div>
 
-            <div>
-                <div class="font-bold border-b border-gray-300 pb-1 mb-2 text-gray-900">Dictionary Index</div>
-                <div id="keyword-list" class="space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto">
-                    <div class="text-gray-500 italic">Loading index...</div>
+                <div class="pt-2 border-t border-gray-200">
+                    <div class="font-bold text-black mb-1">associations:</div>
+                    <div class="space-y-1 flex flex-col">
+                        <span class="wiki-link">animation library</span>
+                        <span class="wiki-link">audioclip</span>
+                        <span class="wiki-link">blur</span>
+                        <span class="wiki-link">button</span>
+                        <span class="wiki-link">cameracontrol</span>
+                        <span class="wiki-link">card</span>
+                        <span class="wiki-link">drawing library</span>
+                        <span class="wiki-link">json library</span>
+                        <span class="wiki-link">qr code generator</span>
+                    </div>
                 </div>
             </div>
         </aside>
 
-        <!-- WIKIPEDIA ARTICLE CONTENT AREA -->
-        <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+        <!-- RIGHT MAIN AREA -->
+        <main class="flex-1 flex flex-col gap-3 overflow-hidden">
             
-            <!-- ARTICLE TABS -->
-            <div class="flex justify-between items-end border-b border-gray-300 mb-4 pb-0 text-xs">
-                <div class="flex space-x-1">
-                    <span class="border border-b-white border-gray-300 px-3 py-1 bg-white font-bold -mb-px">Article</span>
-                    <span class="border border-transparent px-3 py-1 text-blue-600 hover:underline cursor-pointer">Talk</span>
-                </div>
-                <div class="flex space-x-3 text-gray-600 mb-1">
-                    <span class="text-black font-semibold">Read</span>
-                    <span class="text-blue-600 hover:underline cursor-pointer">Edit</span>
-                    <span class="text-blue-600 hover:underline cursor-pointer">View history</span>
-                </div>
+            <!-- TOP TABLE SECTION -->
+            <div class="border border-gray-300 rounded bg-white h-52 overflow-y-auto shrink-0">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-white sticky top-0 border-b border-gray-300 text-blue-600 select-none">
+                        <tr>
+                            <th class="py-1.5 px-3 font-semibold w-1/4 border-r border-gray-200 cursor-pointer">Name ▾</th>
+                            <th class="py-1.5 px-3 font-semibold w-1/4 border-r border-gray-200 cursor-pointer">Type ▾</th>
+                            <th class="py-1.5 px-3 font-semibold w-1/2 cursor-pointer">Syntax ▾</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dictionary-table-body" class="divide-y divide-gray-100 font-mono">
+                        <tr>
+                            <td colspan="3" class="py-4 text-center text-gray-400 font-sans">Loading dictionary database...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <!-- MAIN ARTICLE BODY -->
-            <div id="details-view">
-                <h1 class="text-3xl wiki-serif border-b border-gray-300 pb-2 mb-4 text-black">Strict English Specification</h1>
-                <p class="text-sm text-gray-700 leading-relaxed mb-4">
-                    Welcome to the <i>Strict English Specification</i> wiki. Select any keyword from the left sidebar or use the search bar above to read its official syntax, semantics, and execution parameters.
-                </p>
+            <!-- BOTTOM DETAILS VIEW -->
+            <div class="border border-gray-300 rounded bg-white flex-1 p-6 overflow-y-auto">
+                <div id="details-view">
+                    <div class="text-gray-400 text-center py-12 font-sans">Select an item from the table above to view details.</div>
+                </div>
             </div>
 
         </main>
@@ -82,7 +121,7 @@
 
     <script>
         const SUPABASE_URL = 'https://bkhvrqopgxjvztwjoalr.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJraHZycW9wZ3hqdnp0d2pvYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTYxODQsImV4cCI6MjA5OTM3MjE4NH0.2Dmc3PxZouIbI85IzzRbb2jn_yJPbtZUb9jYt2UuigE'; // Keep your eyJ... key here
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJraHZycW9wZ3hqdnp0d2pvYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTYxODQsImV4cCI6MjA5OTM3MjE4NH0.2Dmc3PxZouIbI85IzzRbb2jn_yJPbtZUb9jYt2UuigE'; 
 
         const DB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let dictionaryData = [];
@@ -91,98 +130,131 @@
             try {
                 const { data, error } = await DB
                     .from('dictionary')
-                    .select('keyword, strict_name')
+                    .select('*')
                     .order('keyword', { ascending: true });
 
                 if (error) throw error;
                 dictionaryData = data;
-                renderSidebar(dictionaryData);
+                renderTable(dictionaryData);
+                
+                // Automatically display the first record if available
+                if (dictionaryData.length > 0) {
+                    displayDetails(dictionaryData[0].keyword);
+                }
             } catch (err) {
-                document.getElementById('keyword-list').innerHTML = `<div class="text-red-600">Error loading index.</div>`;
+                document.getElementById('dictionary-table-body').innerHTML = 
+                    `<tr><td colspan="3" class="p-3 text-red-600 font-sans text-center">Error loading records: ${err.message}</td></tr>`;
             }
         }
 
-function renderSidebar() {
-    const listContainer = document.getElementById('keyword-list');
-    if (dictionaryData.length === 0) {
-        listContainer.innerHTML = '<div class="text-gray-500 text-center py-8 text-sm">Database table is empty. Add entries to see them here!</div>';
-        return;
-    }
+        function renderTable(items = dictionaryData) {
+            const tbody = document.getElementById('dictionary-table-body');
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 font-sans">No matching entries found.</td></tr>';
+                return;
+            }
 
-    // Render buttons with a data-keyword attribute instead of inline onclick
-    listContainer.innerHTML = dictionaryData.map(item => `
-        <button data-keyword="${item.keyword}" 
-                class="sidebar-item w-full text-left px-3 py-2 rounded text-sm font-medium transition duration-150 flex flex-col gap-0.5">
-            <span class="text-gray-200 truncate font-mono">${item.keyword}</span>
-            <span class="text-xs text-gray-400 font-sans truncate">${item.strict_name || 'No title defined'}</span>
-        </button>
-    `).join('');
-
-    // Attach click listeners safely via JavaScript
-    listContainer.querySelectorAll('.sidebar-item').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const keyword = button.getAttribute('data-keyword');
-            displayDetails(keyword, button);
-        });
-    });
-}
-
-        function filterKeywords() {
-            const query = document.getElementById('wiki-search').value.toLowerCase();
-            const filtered = dictionaryData.filter(item => item.keyword.toLowerCase().includes(query));
-            renderSidebar(filtered);
+            tbody.innerHTML = items.map(item => `
+                <tr data-keyword="${item.keyword}" 
+                    onclick="selectRow(this, '${item.keyword}')"
+                    class="hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100">
+                    <td class="py-1 px-3 border-r border-gray-100 text-gray-900 font-semibold">${item.keyword}</td>
+                    <td class="py-1 px-3 border-r border-gray-100 text-gray-600 font-sans">keyword</td>
+                    <td class="py-1 px-3 text-gray-700 truncate">${item.syntax || item.keyword}</td>
+                </tr>
+            `).join('');
         }
 
-        async function displayDetails(keyword, element) {
-    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-    element.classList.add('active');
+        function selectRow(trElement, keyword) {
+            document.querySelectorAll('#dictionary-table-body tr').forEach(r => r.classList.remove('table-row-selected'));
+            trElement.classList.add('table-row-selected');
+            displayDetails(keyword);
+        }
 
-    const detailsContainer = document.getElementById('details-view');
-    detailsContainer.innerHTML = '<div class="text-gray-400 animate-pulse text-center">Querying database engine...</div>';
+        function filterKeywords() {
+            const query = document.getElementById('api-search').value.toLowerCase();
+            const filtered = dictionaryData.filter(item => 
+                item.keyword.toLowerCase().includes(query) || 
+                (item.syntax && item.syntax.toLowerCase().includes(query)) ||
+                (item.strict_name && item.strict_name.toLowerCase().includes(query))
+            );
+            renderTable(filtered);
+        }
 
-    try {
-        const { data, error } = await DB
-            .from('dictionary')
-            .select('*')
-            .eq('keyword', keyword)
-            .single();
+        async function displayDetails(keyword) {
+            const detailsContainer = document.getElementById('details-view');
 
-        if (error) throw error;
+            try {
+                const { data, error } = await DB
+                    .from('dictionary')
+                    .select('*')
+                    .eq('keyword', keyword)
+                    .single();
 
-        detailsContainer.className = "flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full opacity-100 transition-opacity duration-200 text-left";
-        detailsContainer.innerHTML = `
-            <div class="mb-6">
-                <span class="bg-sky-500/10 text-sky-400 text-xs font-semibold tracking-wider uppercase px-2.5 py-1 rounded border border-sky-500/20">Specification Definition</span>
-                <h2 class="text-3xl font-bold mt-3 text-white font-mono border-b border-gray-800 pb-4">${data.keyword}</h2>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <div class="bg-gray-900 p-5 rounded-lg border border-gray-800">
-                    <h3 class="text-xs font-bold text-gray-400 tracking-wide uppercase">Strict Formulation Name</h3>
-                    <p class="text-lg font-semibold text-sky-400 mt-1">${data.strict_name || 'N/A'}</p>
-                </div>
-                <div class="bg-gray-900 p-5 rounded-lg border border-gray-800">
-                    <h3 class="text-xs font-bold text-gray-400 tracking-wide uppercase">Abstract Scope Behavior</h3>
-                    <p class="text-sm text-gray-300 mt-2 leading-relaxed">${data.description || 'No descriptive context provided.'}</p>
-                </div>
-            </div>
+                if (error) throw error;
 
-            <!-- SYNTAX SECTION -->
-            <div class="mt-6 bg-gray-900 p-6 rounded-lg border border-gray-800">
-                <h3 class="text-xs font-bold text-gray-400 tracking-wide uppercase mb-2">Syntax</h3>
-                <pre class="bg-gray-950 p-4 rounded border border-gray-800 text-amber-400 font-mono text-sm overflow-x-auto whitespace-pre-wrap">${data.syntax || 'button "[objectName]"'}</pre>
-            </div>
+                // Highlight corresponding row in table
+                const tr = document.querySelector(`#dictionary-table-body tr[data-keyword="${keyword}"]`);
+                if (tr) {
+                    document.querySelectorAll('#dictionary-table-body tr').forEach(r => r.classList.remove('table-row-selected'));
+                    tr.classList.add('table-row-selected');
+                }
 
-            <!-- EXAMPLE SECTION -->
-            <div class="mt-6 bg-gray-900 p-6 rounded-lg border border-gray-800">
-                <h3 class="text-xs font-bold text-gray-400 tracking-wide uppercase mb-2">Example</h3>
-                <pre class="bg-gray-950 p-4 rounded border border-gray-800 text-emerald-400 font-mono text-sm overflow-x-auto whitespace-pre-wrap">${data.example || 'click button "Submit"'}</pre>
-            </div>
-        `;
-    } catch (err) {
-        detailsContainer.innerHTML = `<div class="text-red-400 text-center">Error parsing data record.<br>${err.message}</div>`;
-    }
-}
+                detailsContainer.innerHTML = `
+                    <div class="space-y-6">
+                        <!-- HEADER TITLE -->
+                        <h1 class="text-4xl font-bold text-gray-900 font-mono tracking-tight">${data.keyword}</h1>
+
+                        <!-- METADATA ROWS -->
+                        <div class="space-y-4 text-sm">
+                            <div class="flex items-start">
+                                <span class="w-28 font-bold text-gray-700 shrink-0">Type</span>
+                                <span class="text-gray-800">${data.strict_name || 'keyword'}</span>
+                            </div>
+
+                            <!-- SYNTAX BOX -->
+                            <div class="flex items-start">
+                                <span class="w-28 font-bold text-gray-700 shrink-0 mt-1">Syntax</span>
+                                <div class="flex-1 bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-gray-800 text-xs overflow-x-auto whitespace-pre-wrap">
+                                    ${data.syntax || data.keyword}
+                                </div>
+                            </div>
+
+                            <!-- SUMMARY / DESCRIPTION -->
+                            <div class="flex items-start">
+                                <span class="w-28 font-bold text-gray-700 shrink-0">Summary</span>
+                                <div class="flex-1 text-gray-800 leading-relaxed">
+                                    ${data.description || 'No summary context available for this entry.'}
+                                </div>
+                            </div>
+
+                            <!-- EXAMPLES -->
+                            <div class="flex items-start">
+                                <span class="w-28 font-bold text-gray-700 shrink-0 mt-1">Examples</span>
+                                <div class="flex-1 space-y-2">
+                                    <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-xs overflow-x-auto whitespace-pre-wrap">
+                                        <span class="text-purple-900 font-semibold">${data.example || 'click button "Submit"'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RELATED -->
+                            <div class="flex items-start pt-2">
+                                <span class="w-28 font-bold text-gray-700 shrink-0">Related</span>
+                                <div class="flex-1 text-xs space-y-1">
+                                    <div>keyword: <span class="wiki-link">@</span></div>
+                                    <div>message: <span class="wiki-link">relaunch</span></div>
+                                    <div>command: <span class="wiki-link">open process</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                detailsContainer.innerHTML = `<div class="text-red-600">Error loading details record: ${err.message}</div>`;
+            }
+        }
+
         window.onload = loadDictionary;
     </script>
 </body>
