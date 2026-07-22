@@ -137,7 +137,7 @@
                     .order('keyword', { ascending: true });
 
                 if (error) throw error;
-                dictionaryData = data;
+                dictionaryData = data || [];
                 renderTable(dictionaryData);
                 
                 if (dictionaryData.length > 0) {
@@ -157,12 +157,12 @@
             }
 
             tbody.innerHTML = items.map(item => `
-                <tr data-keyword="${item.keyword}" 
-                    onclick="selectRow(this, '${item.keyword}')"
+                <tr data-keyword="${escapeHtml(item.keyword)}" 
+                    onclick="selectRow(this, '${escapeHtml(item.keyword)}')"
                     class="hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100">
-                    <td class="py-1 px-3 border-r border-gray-100 text-gray-900 font-semibold">${item.keyword}</td>
-                    <td class="py-1 px-3 border-r border-gray-100 text-gray-600 font-sans">${item.strict_name || 'keyword'}</td>
-                    <td class="py-1 px-3 text-gray-700 truncate">${item.syntax || item.keyword}</td>
+                    <td class="py-1 px-3 border-r border-gray-100 text-gray-900 font-semibold">${escapeHtml(item.keyword || '')}</td>
+                    <td class="py-1 px-3 border-r border-gray-100 text-gray-600 font-sans">${escapeHtml(item.strict_name || 'keyword')}</td>
+                    <td class="py-1 px-3 text-gray-700 truncate">${escapeHtml(item.syntax || item.keyword || '')}</td>
                 </tr>
             `).join('');
         }
@@ -202,13 +202,11 @@
                 const itemStrictName = (item.strict_name || '').toLowerCase();
                 const itemDesc = (item.description || '').toLowerCase();
 
-                // Search Bar Filter
                 const matchesSearch = !query || 
                                      itemKeyword.includes(query) || 
                                      itemSyntax.includes(query) || 
                                      itemStrictName.includes(query);
                 
-                // Sidebar Filter (Flexible Match against Strict Name, Keyword, or Description)
                 const matchesType = !filterTag || 
                                     itemStrictName.includes(filterTag) || 
                                     itemKeyword.includes(filterTag) ||
@@ -219,7 +217,6 @@
 
             renderTable(filtered);
 
-            // Automatically select and render details for the first filtered item
             if (filtered.length > 0) {
                 displayDetails(filtered[0].keyword);
             } else {
@@ -227,344 +224,64 @@
             }
         }
 
-        async function displayDetails(keyword) {
+        function displayDetails(keyword) {
             const detailsContainer = document.getElementById('details-view');
-
-            try {
-                const { data, error } = await DB
-                    .from('dictionary')
-                    .select('*')
-                    .eq('keyword', keyword)
-                    .single();
-
-                if (error) throw error;
-
-                const tr = document.querySelector(`#dictionary-table-body tr[data-keyword="${keyword}"]`);
-                if (tr) {
-                    document.querySelectorAll('#dictionary-table-body tr').forEach(r => r.classList.remove('table-row-selected'));
-                    tr.classList.add('table-row-selected');
-                }
-
-                detailsContainer.innerHTML = `
-                    <div class="space-y-4 max-w-4xl text-left">
-                        <!-- HEADER TITLE -->
-                        <h1 class="text-4xl font-bold text-gray-900 font-mono tracking-tight pb-2 border-b border-gray-200">${data.keyword}</h1>
-
-                        <!-- TYPE -->
-                        <div class="space-y-1">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Type</span>
-                            <span class="text-gray-900 text-sm font-medium">${data.strict_name || 'keyword'}</span>
-                        </div>
-
-                        <!-- SYNTAX -->
-                        <div class="space-y-1">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Syntax</span>
-                            <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-gray-800 text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed">${data.syntax || data.keyword}</div>
-                        </div>
-
-                        <!-- SUMMARY -->
-                        <div class="space-y-1">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Summary</span>
-                            <div class="text-gray-800 text-sm leading-relaxed">${data.description || 'No summary context available for this entry.'}</div>
-                        </div>
-
-                        <!-- EXAMPLES -->
-                        <div class="space-y-1">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Examples</span>
-                            <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-xs overflow-x-auto whitespace-pre-wrap text-purple-900 font-semibold leading-relaxed">${data.example || 'click button "Submit"'}</div>
-                        </div>
-
-                        <!-- RELATED -->
-                        <div class="space-y-1 pt-2">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Related</span>
-                            <div class="text-xs space-y-0.5">
-                                <div>keyword: <span class="filter-btn">@</span></div>
-                                <div>message: <span class="filter-btn">relaunch</span></div>
-                                <div>command: <span class="filter-btn">open process</span></div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } catch (err) {
-                detailsContainer.innerHTML = `<div class="text-red-600">Error loading details record: ${err.message}</div>`;
-            }
-        }
-
-        window.onload = loadDictionary;
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dictionary</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        .table-row-selected { background-color: #e8f0fe !important; }
-        .filter-btn { color: #2563eb; cursor: pointer; text-align: left; background: none; border: none; padding: 0; }
-        .filter-btn:hover { text-decoration: underline; }
-        .filter-btn.active-filter { font-weight: bold; color: #1d4ed8; text-decoration: underline; }
-    </style>
-</head>
-<body class="bg-[#f0f0f0] text-gray-800 min-h-screen flex flex-col text-sm">
-
-    <!-- TOP HEADER TABS -->
-    <div class="bg-[#e5e5e5] border-b border-gray-300 px-3 py-1 flex items-center text-xs gap-4">
-        <span class="font-semibold text-black border-b-2 border-black pb-0.5 cursor-pointer">API</span>
-        <span class="text-gray-600 hover:text-black cursor-pointer">Guide</span>
-    </div>
-
-    <!-- SUB-HEADER TOOLBAR -->
-    <div class="bg-[#f8f9fa] border-b border-gray-300 px-4 py-2 flex items-center justify-between gap-4 text-xs">
-        <div class="flex items-center gap-2">
-            <span class="text-gray-600">Choose API:</span>
-            <select class="border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none">
-                <option>Strict English Script</option>
-            </select>
-        </div>
-
-        <div class="flex items-center gap-2 text-gray-400">
-            <button class="px-2 py-0.5 border border-gray-300 rounded bg-white hover:bg-gray-50 text-gray-600" disabled>&lt;</button>
-            <button class="px-2 py-0.5 border border-gray-300 rounded bg-white hover:bg-gray-50 text-gray-600" disabled>&gt;</button>
-            <span class="text-gray-400 ml-1">🕒</span>
-        </div>
-
-        <div class="flex items-center">
-            <input type="text" id="api-search" oninput="applyFilters()" placeholder="Search" 
-                   class="border border-gray-300 border-r-0 rounded-l px-3 py-1 w-64 focus:outline-none bg-white">
-            <button class="border border-gray-300 rounded-r px-2 py-1 bg-white text-gray-500 hover:bg-gray-50">🔍</button>
-        </div>
-    </div>
-
-    <!-- MAIN TWO-COLUMN CONTAINER -->
-    <div class="flex flex-1 p-3 gap-3 max-w-[1600px] w-full mx-auto overflow-hidden">
-        
-        <!-- LEFT SIDEBAR: FILTERS -->
-        <aside class="w-60 border border-gray-300 rounded bg-white flex flex-col shrink-0 overflow-hidden">
-            <div class="bg-[#f0f0f0] border-b border-gray-300 px-3 py-1.5 font-semibold text-xs text-gray-700 flex justify-between items-center">
-                <span>Filters</span>
-                <button onclick="clearTypeFilter()" id="clear-filter-btn" class="text-[10px] text-blue-600 hidden hover:underline">Clear</button>
-            </div>
-            <div class="p-3 overflow-y-auto text-xs space-y-4">
-                <div>
-                    <div class="font-bold text-black mb-1">type:</div>
-                    <div class="grid grid-cols-2 gap-x-2 gap-y-1">
-                        <button class="filter-btn" onclick="toggleTypeFilter('command', this)">command</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('library', this)">library</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('constant', this)">constant</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('message', this)">message</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('control structure', this)">control structure</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('object', this)">object</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('function', this)">function</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('operator', this)">operator</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('glossary', this)">glossary</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('property', this)">property</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('handler', this)">handler</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('widget', this)">widget</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('keyword', this)">keyword</button>
-                    </div>
-                </div>
-
-                <div class="pt-2 border-t border-gray-200">
-                    <div class="font-bold text-black mb-1">associations:</div>
-                    <div class="space-y-1 flex flex-col">
-                        <button class="filter-btn" onclick="toggleTypeFilter('animation library', this)">animation library</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('audioclip', this)">audioclip</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('blur', this)">blur</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('button', this)">button</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('cameracontrol', this)">cameracontrol</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('card', this)">card</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('drawing library', this)">drawing library</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('json library', this)">json library</button>
-                        <button class="filter-btn" onclick="toggleTypeFilter('qr code generator', this)">qr code generator</button>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- RIGHT MAIN AREA -->
-        <main class="flex-1 flex flex-col gap-3 overflow-hidden">
             
-            <!-- TOP TABLE SECTION -->
-            <div class="border border-gray-300 rounded bg-white h-52 overflow-y-auto shrink-0">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-white sticky top-0 border-b border-gray-300 text-blue-600 select-none">
-                        <tr>
-                            <th class="py-1.5 px-3 font-semibold w-1/4 border-r border-gray-200 cursor-pointer">Name ▾</th>
-                            <th class="py-1.5 px-3 font-semibold w-1/4 border-r border-gray-200 cursor-pointer">Type ▾</th>
-                            <th class="py-1.5 px-3 font-semibold w-1/2 cursor-pointer">Syntax ▾</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dictionary-table-body" class="divide-y divide-gray-100 font-mono">
-                        <tr>
-                            <td colspan="3" class="py-4 text-center text-gray-400 font-sans">Loading dictionary database...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            // Look up directly from in-memory cache
+            const data = dictionaryData.find(item => item.keyword === keyword);
 
-            <!-- BOTTOM DETAILS VIEW -->
-            <div class="border border-gray-300 rounded bg-white flex-1 p-6 overflow-y-auto">
-                <div id="details-view">
-                    <div class="text-gray-400 text-center py-12 font-sans">Select an item from the table above to view details.</div>
-                </div>
-            </div>
-
-        </main>
-    </div>
-
-    <script>
-        const SUPABASE_URL = 'https://bkhvrqopgxjvztwjoalr.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJraHZycW9wZ3hqdnp0d2pvYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTYxODQsImV4cCI6MjA5OTM3MjE4NH0.2Dmc3PxZouIbI85IzzRbb2jn_yJPbtZUb9jYt2UuigE'; 
-
-        const DB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let dictionaryData = [];
-        let activeTypeFilter = null;
-
-        async function loadDictionary() {
-            try {
-                const { data, error } = await DB
-                    .from('dictionary')
-                    .select('*')
-                    .order('keyword', { ascending: true });
-
-                if (error) throw error;
-                dictionaryData = data;
-                renderTable(dictionaryData);
-                
-                if (dictionaryData.length > 0) {
-                    displayDetails(dictionaryData[0].keyword);
-                }
-            } catch (err) {
-                document.getElementById('dictionary-table-body').innerHTML = 
-                    `<tr><td colspan="3" class="p-3 text-red-600 font-sans text-center">Error loading records: ${err.message}</td></tr>`;
-            }
-        }
-
-        function renderTable(items = dictionaryData) {
-            const tbody = document.getElementById('dictionary-table-body');
-            if (items.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 font-sans">No matching entries found.</td></tr>';
+            if (!data) {
+                detailsContainer.innerHTML = `<div class="text-red-600">Entry not found.</div>`;
                 return;
             }
 
-            tbody.innerHTML = items.map(item => `
-                <tr data-keyword="${item.keyword}" 
-                    onclick="selectRow(this, '${item.keyword}')"
-                    class="hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100">
-                    <td class="py-1 px-3 border-r border-gray-100 text-gray-900 font-semibold">${item.keyword}</td>
-                    <td class="py-1 px-3 border-r border-gray-100 text-gray-600 font-sans">${item.strict_name || 'keyword'}</td>
-                    <td class="py-1 px-3 text-gray-700 truncate">${item.syntax || item.keyword}</td>
-                </tr>
-            `).join('');
-        }
-
-        function selectRow(trElement, keyword) {
-            document.querySelectorAll('#dictionary-table-body tr').forEach(r => r.classList.remove('table-row-selected'));
-            trElement.classList.add('table-row-selected');
-            displayDetails(keyword);
-        }
-
-        function toggleTypeFilter(type, buttonEl) {
-            if (activeTypeFilter === type) {
-                clearTypeFilter();
-            } else {
-                activeTypeFilter = type;
-                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
-                buttonEl.classList.add('active-filter');
-                document.getElementById('clear-filter-btn').classList.remove('hidden');
-                applyFilters();
+            // Update row selection UI
+            const tr = document.querySelector(`#dictionary-table-body tr[data-keyword="${CSS.escape(keyword)}"]`);
+            if (tr) {
+                document.querySelectorAll('#dictionary-table-body tr').forEach(r => r.classList.remove('table-row-selected'));
+                tr.classList.add('table-row-selected');
             }
-        }
 
-        function clearTypeFilter() {
-            activeTypeFilter = null;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
-            document.getElementById('clear-filter-btn').classList.add('hidden');
-            applyFilters();
-        }
+            detailsContainer.innerHTML = `
+                <div class="space-y-4 max-w-4xl text-left">
+                    <!-- HEADER TITLE -->
+                    <h1 class="text-4xl font-bold text-gray-900 font-mono tracking-tight pb-2 border-b border-gray-200">${escapeHtml(data.keyword || '')}</h1>
 
-        function applyFilters() {
-            const query = document.getElementById('api-search').value.toLowerCase();
-            
-            const filtered = dictionaryData.filter(item => {
-                const matchesSearch = item.keyword.toLowerCase().includes(query) || 
-                                     (item.syntax && item.syntax.toLowerCase().includes(query)) ||
-                                     (item.strict_name && item.strict_name.toLowerCase().includes(query));
-                
-                const matchesType = !activeTypeFilter || 
-                                    (item.strict_name && item.strict_name.toLowerCase() === activeTypeFilter.toLowerCase());
-                
-                return matchesSearch && matchesType;
-            });
-
-            renderTable(filtered);
-        }
-
-        async function displayDetails(keyword) {
-            const detailsContainer = document.getElementById('details-view');
-
-            try {
-                const { data, error } = await DB
-                    .from('dictionary')
-                    .select('*')
-                    .eq('keyword', keyword)
-                    .single();
-
-                if (error) throw error;
-
-                const tr = document.querySelector(`#dictionary-table-body tr[data-keyword="${keyword}"]`);
-                if (tr) {
-                    document.querySelectorAll('#dictionary-table-body tr').forEach(r => r.classList.remove('table-row-selected'));
-                    tr.classList.add('table-row-selected');
-                }
-
-                detailsContainer.innerHTML = `
-                    <div class="space-y-4 max-w-4xl text-left">
-                        <!-- HEADER TITLE -->
-                        <h1 class="text-4xl font-bold text-gray-900 font-mono tracking-tight pb-2 border-b border-gray-200">${data.keyword}</h1>
-
-                        <!-- TYPE -->
-                        <div class="space-y-1">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Type</span>
-                            <span class="text-gray-900 text-sm font-medium">${data.strict_name || 'keyword'}</span>
-                        </div>
-
-                        <!-- SYNTAX -->
-                        <div class="space-y-1">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Syntax</span>
-                            <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-gray-800 text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed">${data.syntax || data.keyword}</div>
-                        </div>
-
-                        <!-- SUMMARY -->
-                        <div class="space-y-1">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Summary</span>
-                            <div class="text-gray-800 text-sm leading-relaxed">${data.description || 'No summary context available for this entry.'}</div>
-                        </div>
-
-                        <!-- EXAMPLES -->
-                        <div class="space-y-1">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Examples</span>
-                            <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-xs overflow-x-auto whitespace-pre-wrap text-purple-900 font-semibold leading-relaxed">${data.example || 'click button "Submit"'}</div>
-                        </div>
-
-                        <!-- RELATED -->
-                        <div class="space-y-1 pt-2">
-                            <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Related</span>
-                            <div class="text-xs space-y-0.5">
-                                <div>keyword: <span class="filter-btn">@</span></div>
-                                <div>message: <span class="filter-btn">relaunch</span></div>
-                                <div>command: <span class="filter-btn">open process</span></div>
-                            </div>
-                        </div>
+                    <!-- TYPE -->
+                    <div class="space-y-1">
+                        <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Type</span>
+                        <span class="text-gray-900 text-sm font-medium">${escapeHtml(data.strict_name || 'keyword')}</span>
                     </div>
-                `;
-            } catch (err) {
-                detailsContainer.innerHTML = `<div class="text-red-600">Error loading details record: ${err.message}</div>`;
-            }
+
+                    <!-- SYNTAX -->
+                    <div class="space-y-1">
+                        <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Syntax</span>
+                        <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-gray-800 text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed">${escapeHtml(data.syntax || data.keyword || '')}</div>
+                    </div>
+
+                    <!-- SUMMARY -->
+                    <div class="space-y-1">
+                        <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Summary</span>
+                        <div class="text-gray-800 text-sm leading-relaxed">${data.description || 'No summary context available for this entry.'}</div>
+                    </div>
+
+                    <!-- EXAMPLES -->
+                    <div class="space-y-1">
+                        <span class="block font-bold text-gray-700 text-xs uppercase tracking-wider">Examples</span>
+                        <div class="bg-[#f8f9fa] border border-gray-300 rounded p-3 font-mono text-xs overflow-x-auto whitespace-pre-wrap text-purple-900 font-semibold leading-relaxed">${escapeHtml(data.example || 'N/A')}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Utility helper to safely escape strings rendered into HTML
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         window.onload = loadDictionary;
