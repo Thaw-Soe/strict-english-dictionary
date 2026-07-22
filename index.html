@@ -102,21 +102,30 @@
             }
         }
 
-        function renderSidebar(items) {
-            const listContainer = document.getElementById('keyword-list');
-            if (!items || items.length === 0) {
-                listContainer.innerHTML = '<div class="text-gray-500 italic">No results found.</div>';
-                return;
-            }
+function renderSidebar() {
+    const listContainer = document.getElementById('keyword-list');
+    if (dictionaryData.length === 0) {
+        listContainer.innerHTML = '<div class="text-gray-500 text-center py-8 text-sm">Database table is empty. Add entries to see them here!</div>';
+        return;
+    }
 
-            listContainer.innerHTML = items.map(item => `
-                <div>
-                    <a href="javascript:void(0)" onclick="displayDetails('${item.keyword}')" class="wiki-link block truncate">
-                        ${item.keyword}
-                    </a>
-                </div>
-            `).join('');
-        }
+    // Render buttons with a data-keyword attribute instead of inline onclick
+    listContainer.innerHTML = dictionaryData.map(item => `
+        <button data-keyword="${item.keyword}" 
+                class="sidebar-item w-full text-left px-3 py-2 rounded text-sm font-medium transition duration-150 flex flex-col gap-0.5">
+            <span class="text-gray-200 truncate font-mono">${item.keyword}</span>
+            <span class="text-xs text-gray-400 font-sans truncate">${item.strict_name || 'No title defined'}</span>
+        </button>
+    `).join('');
+
+    // Attach click listeners safely via JavaScript
+    listContainer.querySelectorAll('.sidebar-item').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const keyword = button.getAttribute('data-keyword');
+            displayDetails(keyword, button);
+        });
+    });
+}
 
         function filterKeywords() {
             const query = document.getElementById('wiki-search').value.toLowerCase();
